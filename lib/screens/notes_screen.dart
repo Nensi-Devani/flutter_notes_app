@@ -14,7 +14,7 @@ class _NotesScreenState extends State<NotesScreen> {
   TextEditingController titleTxtCtrl = TextEditingController();
   TextEditingController descTxtCtrl = TextEditingController();
   List<Note> notes = []; // creating list
-
+  String selId = "";
   @override
   Widget build(BuildContext context) {
     // return const Placeholder();
@@ -42,20 +42,34 @@ class _NotesScreenState extends State<NotesScreen> {
             onPressed: () {
               // add note logic
               if (titleTxtCtrl.text.isNotEmpty && descTxtCtrl.text.isNotEmpty) {
-                notes.add(
-                  Note(
-                    id: DateTime.now().toIso8601String(), // for unique id
-                    title: titleTxtCtrl.text,
-                    description: descTxtCtrl.text,
-                  ),
-                );
+                if (selId == "") {
+                  // add new note
+                  notes.add(
+                    Note(
+                      id: DateTime.now().toIso8601String(), // for unique id
+                      title: titleTxtCtrl.text,
+                      description: descTxtCtrl.text,
+                    ),
+                  );
+                } else {
+                  // update the note
+                  int index = notes.indexWhere((note) => note.id == selId);
+                  if (index > -1) {
+                    notes[index] = Note(
+                      id: selId,
+                      title: titleTxtCtrl.text,
+                      description: descTxtCtrl.text,
+                    );
+                  }
+                  selId = ""; // remove Update btn after update and visible Add btn
+                }
                 setState(() {}); // to reflect in output also
                 // to clear the inputs after adding into list
                 titleTxtCtrl.clear();
                 descTxtCtrl.clear();
               } else {}
             },
-            child: Text('Add'),
+            child: Text(selId == "" ? 'Add' : 'Update'),
           ),
 
           // display list
@@ -66,13 +80,35 @@ class _NotesScreenState extends State<NotesScreen> {
               itemBuilder: (context, index) => ListTile(
                 title: Text('${notes[index].title}'),
                 subtitle: Text('${notes[index].description}'),
-                trailing: IconButton(
-                  onPressed: () {
-                    // delete the note
-                    notes.removeAt(index);
-                    setState(() {});
-                  },
-                  icon: Icon(Icons.delete),
+
+                trailing: SizedBox(
+                  width:
+                      MediaQuery.of(context).size.width *
+                      0.20, // 20 % width to make responsive
+                  child: Row(
+                    // delete / edit icons
+                    children: [
+                      IconButton(
+                        // edit the note
+                        onPressed: () {
+                          // set the value in inputs to edit
+                          titleTxtCtrl.text = notes[index].title;
+                          descTxtCtrl.text = notes[index].description;
+                          selId = notes[index].id;
+                          setState(() {});
+                        },
+                        icon: Icon(Icons.edit),
+                      ),
+                      IconButton(
+                        // delete the note
+                        onPressed: () {
+                          notes.removeAt(index);
+                          setState(() {});
+                        },
+                        icon: Icon(Icons.delete),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
