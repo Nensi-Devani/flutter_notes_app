@@ -46,7 +46,7 @@ class _NotesScreenState extends State<NotesScreen> {
                   Note(
                     id: DateTime.now().toIso8601String(), // for unique id
                     title: titleTxtCtrl.text,
-                    description: descTxtCtrl.text
+                    description: descTxtCtrl.text,
                   ),
                 );
                 setState(() {}); // to reflect in output also
@@ -67,11 +67,12 @@ class _NotesScreenState extends State<NotesScreen> {
                 title: Text('${notes[index].title}'),
                 subtitle: Text('${notes[index].description}'),
                 trailing: IconButton(
-                    onPressed: () {
-                      // delete the note
-
-                    }, 
-                    icon: Icon(Icons.delete)
+                  onPressed: () {
+                    // delete the note
+                    notes.removeAt(index);
+                    setState(() {});
+                  },
+                  icon: Icon(Icons.delete),
                 ),
               ),
             ),
